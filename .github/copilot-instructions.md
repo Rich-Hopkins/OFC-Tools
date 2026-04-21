@@ -1,0 +1,5 @@
+- React + TypeScript Vite app.
+- Keep changes small and focused.
+- Preserve the app's single-page lap tracker behavior.
+- Maintain localStorage persistence, alphabetical sorting, and PWA offline support.
+- Use browser confirm for destructive actions unless the user asks for a custom modal.
