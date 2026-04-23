@@ -1,6 +1,6 @@
 # OFC Tools
 
-OFC Tools is a small React app for the Bike-a-Thon lap tracker and related event tools.
+OFC Tools is a small React app of tools starting with the Bike-a-Thon lap tracker.
 
 ## Features
 
