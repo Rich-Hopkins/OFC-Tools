@@ -24,7 +24,7 @@ This repository is configured to publish to GitHub Pages from GitHub Actions whe
 
 The public URL will be:
 
-`https://rich-hopkins.github.io/OFC-New/`
+`https://rich-hopkins.github.io/OFC-Tools/`
 
 If the repository name changes, the URL path changes to match the repo name.
 
