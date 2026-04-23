@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { HashRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import ofcLogo from './assets/ofc-log-no-text.svg';
+import qrCode from './assets/qr-code.svg';
 
 type Rider = {
   id: string;
@@ -114,6 +115,37 @@ function HomePage() {
             Go to tracker
           </Link>
         </article>
+      </section>
+    </main>
+  );
+}
+
+function QrCodePage() {
+  useEffect(() => {
+    document.title = 'OFC Tools | Share this app';
+  }, []);
+
+  return (
+    <main className="shell shell-home">
+      <section className="hero hero-home qr-hero">
+        <div className="hero-brand">
+          <Link className="hero-logo-link" to="/" aria-label="Go to OFC Tools home">
+            <img className="hero-logo" src={ofcLogo} alt="OFC Tools" />
+          </Link>
+          <div>
+            <p className="eyebrow">OFC Tools</p>
+            <h1>Share this app</h1>
+          </div>
+        </div>
+
+        <p className="intro">Scan this code to open OFC Tools on another device.</p>
+      </section>
+
+      <section className="qr-page-card" aria-label="QR code">
+        <img className="qr-code-image" src={qrCode} alt="QR code for OFC Tools" />
+        <Link className="secondary-button link-button qr-back-link" to="/">
+          Back to home
+        </Link>
       </section>
     </main>
   );
@@ -434,6 +466,9 @@ function InstallFooter({ onInstall, canInstall, isInstalled }: { onInstall: () =
 
   return (
     <footer className="install-footer" aria-label="Install app">
+      <Link className="install-link install-share-link" to="/qr-code">
+        Share this app
+      </Link>
       <button
         type="button"
         className="install-link"
@@ -495,6 +530,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/bike-a-thon" element={<BikeAThonPage />} />
+        <Route path="/qr-code" element={<QrCodePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <InstallFooter onInstall={installApp} canInstall={Boolean(installPrompt)} isInstalled={isInstalled} />

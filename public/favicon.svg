@@ -1,30 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#14233d" />
+  <defs>
+    <linearGradient id="logoGradient" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f5cb67" />
+      <stop offset="48%" stop-color="#b1781d" />
+      <stop offset="100%" stop-color="#4e3005" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#fcf5e5" />
   <path
-    d="M9 33c7-7 16-10 24-10 8 0 15 3 22 8"
-    fill="none"
-    stroke="#f5cb67"
-    stroke-width="2.25"
-    stroke-linecap="round"
+    d="M28 6h8v17h16v7H36v29h-8V30H12v-7h16V6Z"
+    fill="url(#logoGradient)"
+    stroke="#8a5a14"
+    stroke-width="0.9"
+    stroke-linejoin="round"
+    paint-order="stroke fill"
   />
-  <path
-    d="M9 34c7-6 15-9 24-9 8 0 15 3 22 8"
-    fill="none"
-    stroke="#fff3d8"
-    stroke-width="1.1"
-    stroke-linecap="round"
-    opacity="0.6"
-  />
-  <text
-    x="31.5"
-    y="40"
-    text-anchor="middle"
-    font-family="Trebuchet MS, Segoe UI, sans-serif"
-    font-size="18"
-    font-style="italic"
-    font-weight="700"
-    fill="#f5cb67"
-  >
-    ofc
-  </text>
 </svg>
