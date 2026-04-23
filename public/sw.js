@@ -1,5 +1,13 @@
-const CACHE_NAME = 'bike-a-thon-lap-tracker-v1';
-const CORE_ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icon-192.svg', '/icon-512.svg'];
+const CACHE_NAME = 'ofc-tools-v1';
+const BASE_PATH = new URL('./', self.location).pathname;
+const CORE_ASSETS = [
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}manifest.webmanifest`,
+  `${BASE_PATH}favicon.svg`,
+  `${BASE_PATH}icon-192.svg`,
+  `${BASE_PATH}icon-512.svg`,
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -25,12 +33,12 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request)
         .then((response) => {
           const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', responseClone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(`${BASE_PATH}index.html`, responseClone));
           return response;
         })
         .catch(async () => {
-          const cached = await caches.match('/index.html');
-          return cached || caches.match('/');
+          const cached = await caches.match(`${BASE_PATH}index.html`);
+          return cached || caches.match(BASE_PATH);
         }),
     );
     return;

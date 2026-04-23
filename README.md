@@ -1,6 +1,6 @@
-# Bike-a-Thon Lap Tracker
+# OFC Tools
 
-A single-page React app for tracking kids' laps during a Bike-a-Thon.
+OFC Tools is a small React app for the Bike-a-Thon lap tracker and related event tools.
 
 ## Features
 
@@ -17,6 +17,16 @@ A single-page React app for tracking kids' laps during a Bike-a-Thon.
 - `npm run dev` - start the development server
 - `npm run build` - build the production app
 - `npm run preview` - preview the production build
+
+## GitHub Pages
+
+This repository is configured to publish to GitHub Pages from GitHub Actions whenever a change is merged into `master` and pushed to GitHub.
+
+The public URL will be:
+
+`https://rich-hopkins.github.io/OFC-Tools/`
+
+If the repository name changes, the URL path changes to match the repo name.
 
 ## Notes
 
