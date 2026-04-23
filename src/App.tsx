@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { HashRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import ofcLogo from './assets/ofc-log-no-text.svg';
 
 type Rider = {
@@ -86,16 +87,50 @@ function sortVisibleRiders(riders: Rider[], sortMode: SortMode): Rider[] {
   return [...committed, ...drafts];
 }
 
-function App() {
+function HomePage() {
+  useEffect(() => {
+    document.title = 'OFC Tools';
+  }, []);
+
+  return (
+    <main className="shell shell-home">
+      <section className="hero hero-home">
+        <div className="hero-brand">
+          <img className="hero-logo" src={ofcLogo} alt="OFC Tools" />
+          <div>
+            <p className="eyebrow">OFC Tools</p>
+            <h1>Simple tools for the event team</h1>
+          </div>
+        </div>
+
+      </section>
+
+      <section className="home-card-grid" aria-label="Available tools">
+        <article className="home-card">
+          <p className="eyebrow">Bike-a-Thon</p>
+          <h2>Lap tracker</h2>
+          <p>Track riders, count laps, and keep everything saved locally on this device.</p>
+          <Link className="secondary-button link-button" to="/bike-a-thon">
+            Go to tracker
+          </Link>
+        </article>
+      </section>
+    </main>
+  );
+}
+
+function BikeAThonPage() {
   const [riders, setRiders] = useState<Rider[]>(() => {
     const savedRiders = readRiders();
     return savedRiders.length > 0 ? savedRiders : [makeRider(true)];
   });
   const [sortMode, setSortMode] = useState<SortMode>(() => readSortMode());
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
   const [openMenu, setOpenMenu] = useState<OpenMenu | null>(null);
   const floatingMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    document.title = 'OFC Tools | Bike-a-Thon';
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(riders));
@@ -106,32 +141,8 @@ function App() {
   }, [sortMode]);
 
   useEffect(() => {
-    const onBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      setInstallPrompt(event as BeforeInstallPromptEvent);
-    };
-
-    const onAppInstalled = () => {
-      setIsInstalled(true);
-      setInstallPrompt(null);
-    };
-
-    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
-    window.addEventListener('appinstalled', onAppInstalled);
-
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-    }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', onAppInstalled);
-    };
-  }, []);
-
-  useEffect(() => {
     if (import.meta.env.PROD) {
-      navigator.serviceWorker?.register('/sw.js').catch(() => {
+      navigator.serviceWorker?.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {
         // Offline support is best-effort in production.
       });
       return;
@@ -254,40 +265,64 @@ function App() {
     }));
   }
 
-  async function installApp() {
-    if (!installPrompt) {
-      return;
-    }
-
-    await installPrompt.prompt();
-    await installPrompt.userChoice;
-    setInstallPrompt(null);
-  }
-
   return (
     <main className="shell">
       <section className="hero">
         <div className="hero-brand">
-          <img className="hero-logo" src={ofcLogo} alt="Oakwood First Church" />
+          <Link className="hero-logo-link" to="/" aria-label="Go to OFC Tools home">
+            <img className="hero-logo" src={ofcLogo} alt="OFC Tools" />
+          </Link>
           <div>
-            <p className="eyebrow">Bike-a-Thon</p>
-            <h1>Lap Tracker</h1>
+            <p className="eyebrow">OFC Tools</p>
+            <h1>Bike-a-Thon Lap Tracker</h1>
           </div>
         </div>
         <p className="intro">Add riders, tally laps, and keep the list saved on this device for quick updates during the event.</p>
-        <div className="hero-actions">
-          <button className="primary-button" type="button" onClick={addRider}>
-            Add Name
-          </button>
-          {installPrompt && !isInstalled ? (
-            <button className="secondary-button" type="button" onClick={installApp}>
-              Install app
-            </button>
-          ) : null}
-        </div>
       </section>
 
       <section className="tracker" aria-label="Lap tracker">
+        <div className="tracker-header">
+          <div className="tracker-header-main">
+            <label className="sort-select-wrap">
+              <span className="sr-only">Sort riders</span>
+              <select
+                className="sort-select"
+                aria-label="Sort riders"
+                value={sortMode}
+                onChange={(event) => setSortMode(event.target.value as SortMode)}
+              >
+                <option value="alpha">Sorted A to Z</option>
+                <option value="desc">Sorted Highest to Lowest</option>
+                <option value="asc">Sorted Lowest to Highest</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="tracker-header-actions">
+            <button
+              type="button"
+              className="count-button footer-menu-trigger"
+              aria-label="Open data actions"
+              onClick={(event) => {
+                event.stopPropagation();
+                if (openMenu?.kind === 'footer') {
+                  closeMenu();
+                  return;
+                }
+
+                openMenuFromButton('footer', undefined, event.currentTarget);
+              }}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h16v2H4V7Zm0 4.5h16v2H4v-2Zm0 4.5h16v2H4v-2Z" />
+              </svg>
+            </button>
+            <button type="button" className="count-button add-rider-trigger" aria-label="Add rider" onClick={addRider}>
+              +
+            </button>
+          </div>
+        </div>
+
         <div className="tracker-body">
           {visibleRiders.map((rider) => (
             <div key={rider.id} className="rider-row">
@@ -356,39 +391,6 @@ function App() {
             </div>
           ))}
         </div>
-
-        <div className="tracker-footer">
-          <label className="sort-select-wrap">
-            <select
-              className="sort-select"
-              aria-label="Sort riders"
-              value={sortMode}
-              onChange={(event) => setSortMode(event.target.value as SortMode)}
-            >
-              <option value="alpha">Sorted A to Z</option>
-              <option value="desc">Sorted Highest to Lowest</option>
-              <option value="asc">Sorted Lowest to Highest</option>
-            </select>
-          </label>
-          <button
-            type="button"
-            className="footer-menu-trigger"
-            aria-label="Open data actions"
-            onClick={(event) => {
-              event.stopPropagation();
-              if (openMenu?.kind === 'footer') {
-                closeMenu();
-                return;
-              }
-
-              openMenuFromButton('footer', undefined, event.currentTarget);
-            }}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 7h16v2H4V7Zm0 4.5h16v2H4v-2Zm0 4.5h16v2H4v-2Z" />
-            </svg>
-          </button>
-        </div>
       </section>
 
       {openMenu ? (
@@ -421,12 +423,82 @@ function App() {
         </div>
       ) : null}
 
-      <footer className="footer">
-        <p>
-          {riders.filter((rider) => !rider.draft).length} rider{riders.filter((rider) => !rider.draft).length === 1 ? '' : 's'} saved locally.
-        </p>
-      </footer>
     </main>
+  );
+}
+
+function InstallFooter({ onInstall, canInstall, isInstalled }: { onInstall: () => void; canInstall: boolean; isInstalled: boolean }) {
+  if (isInstalled) {
+    return null;
+  }
+
+  return (
+    <footer className="install-footer" aria-label="Install app">
+      <button
+        type="button"
+        className="install-link"
+        onClick={() => {
+          if (canInstall) {
+            onInstall();
+            return;
+          }
+
+          window.alert('Install this app from your browser menu when the browser makes it available.');
+        }}
+      >
+        Install app
+      </button>
+    </footer>
+  );
+}
+
+function App() {
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const onBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+
+    const onAppInstalled = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+    window.addEventListener('appinstalled', onAppInstalled);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', onAppInstalled);
+    };
+  }, []);
+
+  async function installApp() {
+    if (!installPrompt) {
+      return;
+    }
+
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  }
+
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/bike-a-thon" element={<BikeAThonPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <InstallFooter onInstall={installApp} canInstall={Boolean(installPrompt)} isInstalled={isInstalled} />
+    </HashRouter>
   );
 }
 
