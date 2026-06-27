@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ofcLogo from '../assets/ofc-log-no-text.svg';
 
@@ -131,6 +131,7 @@ interface CoinInputProps {
 
 function CoinInput({ id, label, cents, error, onCentsChange, onBlur }: CoinInputProps) {
   const displayValue = formatCoinCents(cents);
+  const replaceOnTypeRef = useRef(false);
 
   function pushDigit(digit: number) {
     onCentsChange(Math.min(cents * 10 + digit, MAX_COIN_CENTS));
@@ -141,17 +142,35 @@ function CoinInput({ id, label, cents, error, onCentsChange, onBlur }: CoinInput
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    const hasSelection =
+      e.currentTarget.selectionStart !== null &&
+      e.currentTarget.selectionEnd !== null &&
+      e.currentTarget.selectionStart !== e.currentTarget.selectionEnd;
+
     if (e.key >= '0' && e.key <= '9') {
       e.preventDefault();
-      pushDigit(parseInt(e.key, 10));
+      const digit = parseInt(e.key, 10);
+      if (replaceOnTypeRef.current || hasSelection) {
+        onCentsChange(digit);
+      } else {
+        pushDigit(digit);
+      }
+      replaceOnTypeRef.current = false;
     } else if (e.key === 'Backspace') {
       e.preventDefault();
-      popDigit();
+      if (replaceOnTypeRef.current || hasSelection) {
+        onCentsChange(0);
+      } else {
+        popDigit();
+      }
+      replaceOnTypeRef.current = false;
     } else if (e.key === 'Delete') {
       e.preventDefault();
       onCentsChange(0);
+      replaceOnTypeRef.current = false;
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      replaceOnTypeRef.current = false;
       e.currentTarget.blur();
     }
   }
@@ -177,8 +196,14 @@ function CoinInput({ id, label, cents, error, onCentsChange, onBlur }: CoinInput
       placeholder="$0.00"
       onKeyDown={handleKeyDown}
       onChange={handleChange}
-      onBlur={onBlur}
-      onFocus={(e) => e.target.select()}
+      onBlur={() => {
+        replaceOnTypeRef.current = false;
+        onBlur();
+      }}
+      onFocus={(e) => {
+        replaceOnTypeRef.current = true;
+        e.target.select();
+      }}
       onPaste={(e) => e.preventDefault()}
       aria-label={`${label} dollar value`}
       aria-describedby={error ? `${id}-error` : undefined}
@@ -241,12 +266,33 @@ function CounterPanel({
                     onChange={(e) => onBillChange(denom.id, e.target.value)}
                     onBlur={(e) => onBillBlur(denom.id, e.target.value)}
                     onKeyDown={(e) => {
+                      const replaceOnType = e.currentTarget.dataset.replaceOnType === '1';
+                      const hasSelection =
+                        e.currentTarget.selectionStart !== null &&
+                        e.currentTarget.selectionEnd !== null &&
+                        e.currentTarget.selectionStart !== e.currentTarget.selectionEnd;
+
+                      if ((replaceOnType || hasSelection) && /^[0-9.]$/.test(e.key)) {
+                        e.preventDefault();
+                        onBillChange(denom.id, e.key);
+                        e.currentTarget.dataset.replaceOnType = '0';
+                        return;
+                      }
+
+                      if (e.key === 'Backspace' || e.key === 'Delete') {
+                        e.currentTarget.dataset.replaceOnType = '0';
+                      }
+
                       if (e.key === 'Enter') {
                         e.preventDefault();
+                        e.currentTarget.dataset.replaceOnType = '0';
                         e.currentTarget.blur();
                       }
                     }}
-                    onFocus={(e) => e.target.select()}
+                    onFocus={(e) => {
+                      e.currentTarget.dataset.replaceOnType = '1';
+                      e.target.select();
+                    }}
                     aria-label={`${denom.label} dollar value`}
                     aria-describedby={state.errors[denom.id] ? errorId : undefined}
                   />
