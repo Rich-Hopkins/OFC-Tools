@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { InstallFooter } from './components/InstallFooter';
 import { BikeAThonPage } from './pages/BikeAThonPage';
+import { DrawerCountPage } from './pages/DrawerCountPage';
 import { HomePage } from './pages/HomePage';
 import { QrCodePage } from './pages/QrCodePage';
 import type { BeforeInstallPromptEvent } from './types';
@@ -46,6 +47,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/bike-a-thon" element={<BikeAThonPage />} />
+        <Route path="/drawer-count" element={<DrawerCountPage />} />
         <Route path="/qr-code" element={<QrCodePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
