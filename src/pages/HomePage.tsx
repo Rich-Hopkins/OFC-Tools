@@ -28,6 +28,14 @@ export function HomePage() {
             Go to tracker
           </Link>
         </article>
+        <article className="home-card">
+          <p className="eyebrow">Giving</p>
+          <h2>Drawer counter</h2>
+          <p>Count the drawer at the end of an event with two independent counters to verify totals.</p>
+          <Link className="secondary-button link-button" to="/drawer-count">
+            Go to counter
+          </Link>
+        </article>
       </section>
     </main>
   );
